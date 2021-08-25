@@ -1,4 +1,4 @@
-"""Example showing how to use Luigi to build models trained on subsets of data."""
+"""Example showing how to use Luigi to build models trained on increasing subsets of data."""
 import os
 import time
 
@@ -10,6 +10,8 @@ import json
 pjoin = os.path.join
 scratch_dir = "01-luigi-runs"
 
+# The DEBUG level logging is quite verbose
+luigi.interface.core.log_level="INFO"
 
 class MasterWorkflow(luigi.WrapperTask):
     """One workflow to rule them all.
