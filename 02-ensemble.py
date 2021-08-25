@@ -4,7 +4,6 @@ import time
 import pickle as pkl
 
 import luigi
-import sklearn
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.ensemble import GradientBoostingRegressor
 import numpy as np
@@ -15,6 +14,7 @@ scratch_dir = "02-luigi-runs"
 
 # The DEBUG level logging is quite verbose
 luigi.interface.core.log_level="INFO"
+
 
 class MasterWorkflow(luigi.WrapperTask):
     """One workflow to rule them all.
@@ -70,6 +70,7 @@ class TreeConfiguration(luigi.Task):
         with self.output().open('w') as f:
             json.dump(config, f)
 
+
 class RidgeConfiguration(luigi.Task):
     seed = luigi.IntParameter()
 
@@ -92,6 +93,7 @@ class RidgeConfiguration(luigi.Task):
         with self.output().open('w') as f:
             json.dump(config, f)
 
+
 class LassoConfiguration(luigi.Task):
     seed = luigi.IntParameter()
 
@@ -113,6 +115,7 @@ class LassoConfiguration(luigi.Task):
 
         with self.output().open('w') as f:
             json.dump(config, f)
+
 
 class NumpyData(luigi.Task):
     n_feats = luigi.IntParameter()
@@ -171,8 +174,9 @@ class FitRidge(luigi.Task):
             param = json.load(f)
 
         model = Ridge(alpha=param["alpha"])
-        with open(self.output().path, "w") as f:
+        with open(self.output().path, "wb") as f:
             pkl.dump(model, f)
+
 
 class FitLasso(luigi.Task):
     config_task = luigi.TaskParameter() 
@@ -203,7 +207,7 @@ class FitLasso(luigi.Task):
             param = json.load(f)
 
         model = Lasso(alpha=param["alpha"])
-        with open(self.output().path, "w") as f:
+        with open(self.output().path, "wb") as f:
             pkl.dump(model, f)
 
 
@@ -237,8 +241,9 @@ class FitTree(luigi.Task):
 
         model = GradientBoostingRegressor(**param)
 
-        with open(self.output().path, "w") as f:
+        with open(self.output().path, "wb") as f:
             pkl.dump(model, f)
+
 
 class EnsembleModels(luigi.Task):
     model_fit_tasks = luigi.Parameter()
@@ -263,7 +268,7 @@ class EnsembleModels(luigi.Task):
 
         y_hat = np.zeros(n_samples)
         for model_target in self.input()["models"]:
-            with open(model_target.path, "r") as f:
+            with open(model_target.path, "rb") as f:
                 model = pkl.load(f)
                 y_hat += model.predict(X_test)
 
